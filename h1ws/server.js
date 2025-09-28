@@ -1,4 +1,7 @@
-const http = require('http');
+const https = require('https');
+const fs = require('fs');
+const path = require("path");
+
 const crypto = require('crypto');
 const WebSocketConnection = require('./connection');
 
@@ -26,8 +29,13 @@ const WebSocketConnection = require('./connection');
 */
 
 const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
+const key = fs.readFileSync(path.join(__dirname, "../keys/server.key"));
+const cert = fs.readFileSync(path.join(__dirname, "../keys/server.crt"));
 
-const server = http.createServer((req, res) => {
+const server = https.createServer({
+  key: key,
+  cert: cert
+},(req, res) => {
   res.writeHead(404);
   res.end('Use WebSocket upgrade!');
 });
@@ -64,7 +72,7 @@ server.on('upgrade', (req, socket, head) => {
   new WebSocketConnection(socket);
 });
 
-const PORT = 8080;
+const PORT = 8443;
 server.listen(PORT, () => {
-  console.log(`HTTP/1.1 WS server on ws://localhost:${PORT}`);
+  console.log(`HTTP/1.1 WS server on wss://localhost:${PORT}`);
 });
